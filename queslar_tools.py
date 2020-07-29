@@ -78,7 +78,7 @@ class Queslar():
     self.goal = 0
 
     # Store the best position
-    self.final = []
+    self.final = self.start
 
     # Initialize this state to not be THE solution
     self.solution = None
@@ -86,7 +86,9 @@ class Queslar():
 
   def print(self):
     print()
-    if self.goal == 0:
+    if self.start == self.final:
+      print(self.start)
+    elif self.goal == 0:
       print("You can't afford anything")
     else:
       bc = (self.final[0] - self.start[0])/10
@@ -96,18 +98,19 @@ class Queslar():
       hd = (self.final[4] - self.start[4])/10
       hm = (self.final[5] - self.start[5])/10
       print("Buy:")
+      print()
       if bc > 0:
-        print("   Boost Crit Chance: ", bc)
+        print("  - Boost Crit Chance: ", bc)
       if bd > 0:
-        print("   Boost Crit Damage: ", bd)
+        print("  - Boost Crit Damage: ", bd)
       if bm > 0:
-        print("   Boost Multistrike: ", bm)
+        print("  - Boost Multistrike: ", bm)
       if hc > 0:
-        print("   House Crit Chance: ", hc)
+        print("  - House Crit Chance: ", hc)
       if hd > 0:
-        print("   House Crit Damage: ", hd)
+        print("  - House Crit Damage: ", hd)
       if hm > 0:
-        print("   House Multistrike: ", hm)
+        print("  - House Multistrike: ", hm)
     print()
 
 
@@ -265,13 +268,115 @@ class Queslar():
           child = Node(state=state, parent=node, action=action)
           frontier.add(child)
 
+  def shopping_list(self):
+    b_chc = self.final[0] - self.b_chc 
+    b_chd = self.final[1] - self.b_chd
+    b_multi = self.final[2] - self.b_multi
+    h_chc = self.final[3] - self.h_chc
+    h_chd = self.final[4] - self.h_chd 
+    h_multi = self.final[5] - self.h_multi
+
+    b_chc_cost = 0
+    if b_chc > 0:
+      for i in range(b_chc):
+        b_chc_cost += ((self.b_chc + i) * 10) + 10
+
+    b_chd_cost = 0		
+    if b_chd > 0:
+      for i in range(b_chd):
+        b_chd_cost += ((self.b_chd + i) * 10) + 10
+
+    b_multi_cost = 0		
+    if b_multi > 0:
+      for i in range(b_multi):
+        b_multi_cost += ((self.b_multi + i) * 10) + 10      
+				
+    total_relics = self.p_relics - (b_chc_cost + b_chd_cost + b_multi_cost)
+      
+    if total_relics < 0:
+      to_buy_relics = abs(total_relics)
+      relics_total_price = abs(total_relics * self.m_relics)
+    else:
+      to_buy_relics = 0
+      relics_total_price = 0
+        
+    h_chc_cost = 0    
+    if h_chc > 0:
+      for i in range(h_chc):
+        h_chc_cost += int(1000+(1000*((self.h_chc + i)**1.25)))
+
+    h_chd_cost = 0
+    if h_chd > 0:
+      for i in range(h_chd):
+        h_chd_cost += int(1000+(1000*((self.h_chc + i)**1.25)))
+
+    h_multi_cost = 0      	
+    if h_multi > 0:
+      for i in range(h_multi):
+        h_multi_cost += int(1000+(1000*((self.h_chc + i)**1.25)))
+      
+
+    total_meat = self.p_meat - (h_chc_cost + h_chd_cost + h_multi_cost)
+    total_iron = self.p_iron - (h_chc_cost + h_chd_cost + h_multi_cost)
+    total_wood = self.p_wood - (h_chc_cost + h_chd_cost + h_multi_cost)
+    total_stone = self.p_stone - (h_chc_cost + h_chd_cost + h_multi_cost)
+    
+    if total_meat < 0:
+      to_buy_meat = abs(total_meat)
+      meat_price = abs(total_meat * self.m_meat)
+    else:
+      to_buy_meat = 0
+      meat_price = 0
+			
+    if total_iron < 0:
+      to_buy_iron = abs(total_iron)
+      iron_price = abs(total_iron * self.m_iron)
+    else:
+      to_buy_iron = 0
+      iron_price = 0
+            
+    if total_wood < 0:
+      to_buy_wood = abs(total_wood)
+      wood_price = abs(total_wood * self.m_wood)
+    else:
+      to_buy_wood = 0
+      wood_price = 0
+        
+    if total_stone < 0:
+      to_buy_stone = abs(total_stone)
+      stone_price = abs(total_stone * self.m_stone)
+    else:
+      to_buy_stone = 0
+      stone_price = 0
+            
+    mats_total_price = (meat_price + iron_price + wood_price + stone_price)
+
+    total_price = mats_total_price + relics_total_price
+
+    if total_price > 0:
+      print("Shopping List:")
+      print()
+      if to_buy_relics > 0:
+        print("  - Relics: ", to_buy_relics)
+      if to_buy_meat > 0:
+        print("  - Meat: ", to_buy_meat)
+      if to_buy_iron > 0:
+        print("  - Iron: ", to_buy_iron)
+      if to_buy_wood > 0:
+        print("  - Wood: ", to_buy_wood)
+      if to_buy_stone > 0:
+        print("  - Stone: ", to_buy_stone)
+      print()
+      print("Gold spent: ", total_price)
+      print()
 
 #if len(sys.argv) != 2:
 #    sys.exit("Usage: python queslar_tools.py budget")
 
-q = Queslar(0)
+q = Queslar(1000000)
 print("Current:")
 q.print()
 print("Solving...")
 q.solve()
+q.shopping_list()
 print("States Explored:", q.num_explored)
