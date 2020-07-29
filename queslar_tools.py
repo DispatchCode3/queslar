@@ -1,5 +1,5 @@
 import requests
-import sys
+# import sys
 
 
 class Node():
@@ -91,27 +91,29 @@ class Queslar():
     elif self.goal == 0:
       print("You can't afford anything")
     else:
+      print(self.dmg_value(self.final[0], self.final[1], self.final[2], self.final[3], self.final[4], self.final[5]))
       bc = (self.final[0] - self.start[0])/10
       bd = (self.final[1] - self.start[1])/10
       bm = (self.final[2] - self.start[2])/10
-      hc = (self.final[3] - self.start[3])/10
-      hd = (self.final[4] - self.start[4])/10
-      hm = (self.final[5] - self.start[5])/10
+      hc = (self.final[3] - self.start[3])
+      hd = (self.final[4] - self.start[4])
+      hm = (self.final[5] - self.start[5])
       print("Buy:")
       print()
       if bc > 0:
-        print("  - Boost Crit Chance: ", bc)
+        print("  - Boost Crit Chance: {}%".format(bc))
       if bd > 0:
-        print("  - Boost Crit Damage: ", bd)
+        print("  - Boost Crit Damage: {}%".format(bd))
       if bm > 0:
-        print("  - Boost Multistrike: ", bm)
+        print("  - Boost Multistrike: {}%".format(bm))
       if hc > 0:
-        print("  - House Crit Chance: ", hc)
+        print("  - House Crit Chance: {}%".format(hc))
       if hd > 0:
-        print("  - House Crit Damage: ", hd)
+        print("  - House Crit Damage: {}%".format(hd))
       if hm > 0:
-        print("  - House Multistrike: ", hm)
+        print("  - House Multistrike: {}%".format(hm))
     print()
+
 
 
   def boost_cost(self, critChance, critDamage, multistrike):
@@ -224,8 +226,9 @@ class Queslar():
       house_total_cost = self.house_cost(hc, hd, hm)
       total_cost = boost_total_cost + house_total_cost
       if total_cost <= self.budget:
-        result.append((action, (bc, bd, bm, hc, hd, hm)))
         this_dmg = self.dmg_value(bc, bd, bm, hc, hd, hm)
+        if this_dmg > (.75 * self.goal):
+          result.append((action, (bc, bd, bm, hc, hd, hm)))
         if this_dmg > self.goal: 
           self.goal = this_dmg
           self.final = (bc, bd, bm, hc, hd, hm)
@@ -373,7 +376,7 @@ class Queslar():
 #if len(sys.argv) != 2:
 #    sys.exit("Usage: python queslar_tools.py budget")
 
-q = Queslar(300000)
+q = Queslar(10000000)
 print("Current:")
 q.print()
 print("Solving...")
