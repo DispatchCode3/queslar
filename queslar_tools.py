@@ -87,7 +87,7 @@ class Queslar():
   def print(self):
     print()
     if self.goal == 0:
-      print(self.start)
+      print("You can't afford anything")
     else:
       bc = (self.final[0] - self.start[0])/10
       bd = (self.final[1] - self.start[1])/10
@@ -97,17 +97,17 @@ class Queslar():
       hm = (self.final[5] - self.start[5])/10
       print("Buy:")
       if bc > 0:
-        print("Boost Crit Chance: ", bc)
+        print("   Boost Crit Chance: ", bc)
       if bd > 0:
-        print("Boost Crit Damage: ", bd)
+        print("   Boost Crit Damage: ", bd)
       if bm > 0:
-        print("Boost Multistrike: ", bm)
+        print("   Boost Multistrike: ", bm)
       if hc > 0:
-        print("House Crit Chance: ", hc)
+        print("   House Crit Chance: ", hc)
       if hd > 0:
-        print("House Crit Damage: ", hd)
+        print("   House Crit Damage: ", hd)
       if hm > 0:
-        print("House Multistrike: ", hm)
+        print("   House Multistrike: ", hm)
     print()
 
 
@@ -275,4 +275,3 @@ q.print()
 print("Solving...")
 q.solve()
 print("States Explored:", q.num_explored)
-print("Solution:")
