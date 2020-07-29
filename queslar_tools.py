@@ -373,7 +373,7 @@ class Queslar():
 #if len(sys.argv) != 2:
 #    sys.exit("Usage: python queslar_tools.py budget")
 
-q = Queslar(1000000)
+q = Queslar(300000)
 print("Current:")
 q.print()
 print("Solving...")
