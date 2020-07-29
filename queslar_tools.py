@@ -74,17 +74,19 @@ class Queslar():
         # Starting postion
         self.start = (self.b_chc, self.b_chd, self.b_multi, self.h_chc, self.h_chd, self.h_multi)
 
-        # Set goal (infinity for now?)
-        self.goal = float('inf')
+        # Set moving goal
+        self.goal = 0
+		
+		# Store the best position
+		self.final = []
 
         # Initialize this state to not be THE solution
         self.solution = None
 
 
     def print(self):
-        solution = self.solution[1] if self.solution is not None else None
         print()
-        print(solution)
+        print(self.final)
         print()
 
 
@@ -93,31 +95,85 @@ class Queslar():
         net_chd = self.b_chd - critDamage
         net_multi = self.b_multi - multistrike
         
-        chc_cost = 0
-        chd_cost = 0
-        multi_cost = 0
-
         if net_chc > 0:
             for i in range(net_chc):
-                chc_cost += ((self.b_chc + (i + 1)) * 10) + 10
+                chc_cost += ((self.b_chc + i) * 10) + 10
+		else:
+			chc_cost = 0
+				
         if net_chd > 0:
             for i in range(net_chd):
-                chd_cost += ((self.b_chd + (i + 1)) * 10) + 10
+                chd_cost += ((self.b_chd + i) * 10) + 10
+		else:
+			chd_cost = 0
+				
         if net_multi > 0:
             for i in range(net_multi):
-                multi_cost += ((self.b_multi + (i + 1)) * 10) + 10
-
+                multi_cost += ((self.b_multi + i) * 10) + 10
+		else:
+			multi_cost = 0
+				
         total_relics = self.p_relics - (chc_cost + chd_cost + multi_cost)
-        total_price = 0
+      
         if total_relics > 0:
-            total_price = total_relics * self.m_relics
+            total_price = abs(total_relics * self.m_relics)
+		else:
+			total_price = 0
         
         return total_price        
 
 
-    def house_cost(self):
+    def house_cost(self, critChance, critDamage, multistrike):       
+		net_chc = self.h_chc - critChance
+        net_chd = self.h_chd - critDamage
+        net_multi = self.h_multi - multistrike
         
-        #TODO#
+        if net_chc > 0:
+            for i in range(net_chc):
+                chc_cost += int(1000+(1000*((self.h_chc + i)**1.25)))
+		else:
+			chc_cost = 0
+			
+        if net_chd > 0:
+            for i in range(net_chd):
+                chd_cost += int(1000+(1000*((self.h_chc + i)**1.25)))
+		else:
+			chd_cost = 0
+				
+        if net_multi > 0:
+            for i in range(net_multi):
+                multi_cost += int(1000+(1000*((self.h_chc + i)**1.25)))
+		else:
+			multi_cost = 0
+
+        total_meat = self.p_meat - (chc_cost + chd_cost + multi_cost)
+		total_iron = self.p_iron - (chc_cost + chd_cost + multi_cost)
+		total_wood = self.p_wood - (chc_cost + chd_cost + multi_cost)
+		total_stone = self.p_stone - (chc_cost + chd_cost + multi_cost)
+        
+        if total_meat < 0:
+            meat_price = (total_meat * self.m_meat)
+		else:
+			meat_price = 0
+			
+		if total_iron < 0:
+            iron_price = (total_iron * self.m_iron)
+		else:
+			iron_price = 0
+        
+		if total_wood < 0:
+            wood_price = (total_wood * self.m_wood)
+		else:
+			wood_price = 0
+		
+		if total_stone < 0:
+            stone_price = (total_stone * self.m_stone)
+		else:
+			stone_price = 0
+        
+		total_price = (meat_price + iron_price + wood_price + stone_price)
+		
+		return total_price 
 
     def neighbors(self,state):
         bcc, bcd, bcm, hcc, hcd, hcm = state
@@ -138,10 +194,22 @@ class Queslar():
             total_cost = boost_total_cost + house_total_cost
 
             if total_cost < self.budget:
-                result.append((action, (bcc, bcd, bcm, hcc, hcd, hcm + 1)))
+                result.append((action, (bcc, bcd, bcm, hcc, hcd, hcm)))
+				this_dmg = dmg_value(bc, bd, bm, hc, hd, hm)
+				if this_dmg > self.goal:
+					self.goal = this_dmg
+					self.final = (action, (bcc, bcd, bcm, hcc, hcd, hcm))
         return result
-
-    
+	
+	
+	def dmg_value(self, bc, bd, bm, hc, hd, hm)
+		chc = self.b_chc + self.h_chc + bc + hc
+		chd = self.b_chd + self.h_chd + bd + hd
+		multi = self.b_multi + self.h_multi + bm + hm
+		damage = ((1 + (chc * (0.2 + chd))) * (1 + multi)) / ((1 + (chc * (0.2 + chd))) * (1 + multi)) - 1
+		return damage
+		
+		
     def solve(self):
         """Finds a solution to maze, if one exists."""
 
@@ -161,24 +229,13 @@ class Queslar():
 
             # If nothing left in frontier, then no path
             if frontier.empty():
-                raise Exception("no solution")
+                self.print()
+				return
 
             # Choose a node from the frontier
             node = frontier.remove()
             self.num_explored += 1
 
-            # If node is the goal, then we have a solution
-            if node.state == self.goal:
-                actions = []
-                cells = []
-                while node.parent is not None:
-                    actions.append(node.action)
-                    cells.append(node.state)
-                    node = node.parent
-                actions.reverse()
-                cells.reverse()
-                self.solution = (actions, cells)
-                return
 
             # Mark node as explored
             self.explored.add(node.state)
@@ -195,9 +252,8 @@ if len(sys.argv) != 2:
 
 q = Queslar(sys.argv[1])
 print("Current:")
-m.print()
+q.print()
 print("Solving...")
-m.solve()
-print("States Explored:", m.num_explored)
+q.solve()
+print("States Explored:", q.num_explored)
 print("Solution:")
-m.print()
