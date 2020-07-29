@@ -3,6 +3,7 @@ import sys
 
 
 class Node():
+
     def __init__(self, state, parent, action):
         self.state = state
         self.parent = parent
@@ -10,6 +11,7 @@ class Node():
 
 
 class StackFrontier():
+
     def __init__(self):
         self.frontier = []
 
@@ -33,8 +35,7 @@ class StackFrontier():
 
 class Queslar():
 
-    def __init__(self, budget):
-        
+    def __init__(self, budget):     
         response = requests.get('https://queslar.com/api/player/full/8ae05dc0af139baee899ce54db72ef03d14dadbf7659d2dab080674497355105')
         player_data = response.json()
         
