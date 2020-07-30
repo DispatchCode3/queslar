@@ -35,7 +35,7 @@ class StackFrontier():
 
 class Queslar():
 
-  def __init__(self, budget):     
+  def __init__(self, budget, shattered):     
     response = requests.get('https://queslar.com/api/player/full/8ae05dc0af139baee899ce54db72ef03d14dadbf7659d2dab080674497355105')
     player_data = response.json()
     
@@ -50,7 +50,10 @@ class Queslar():
         self.budget = budget
 
     # Starting player resources
-    self.p_relics = player_data['currency']['relics']
+    if shattered:
+      self.p_relics = player_data['currency']['shattered_battling_relics']
+    else:
+      self.p_relics = player_data['currency']['relics']
     self.p_meat = player_data['currency']['meat']
     self.p_iron = player_data['currency']['iron']
     self.p_wood = player_data['currency']['wood']
@@ -198,14 +201,14 @@ class Queslar():
 
 
   def dmg_value(self, bc, bd, bm, hc, hd, hm):
-    chc = (self.b_chc/10) + self.h_chc + (bc/10) + hc
-    chd = (self.b_chd/10) + self.h_chd + (bd/10) + hd
-    multi = (self.b_multi/10) + self.h_multi + (bm/10) + hm
-    base_chc = (self.b_chc/10) + self.h_chc
-    base_chd = (self.b_chd/10) + self.h_chd
-    base_multi = (self.b_multi/10) + self.h_multi
+    chc = (self.b_chc/1000) + (self.h_chc/10) + (bc/1000) + (hc/10)
+    chd = (self.b_chd/1000) + (self.h_chd/10) + (bd/1000) + (hd/10)
+    multi = (self.b_multi/1000) + (self.h_multi/10) + (bm/1000) + (hm/10)
+    base_chc = (self.b_chc/1000) + (self.h_chc/10)
+    base_chd = (self.b_chd/1000) + (self.h_chd/10)
+    base_multi = (self.b_multi/1000) + (self.h_multi/10)
     
-    damage = ((100 + (chc * (20 + chd))) * (100 + multi)) / ((100 + (base_chc * (20 + base_chd))) * (100 + base_multi)) - 100
+    damage = ((1 + (chc * (.2 + chd))) * (1 + multi)) / ((1 + (base_chc * (.2 + base_chd))) * (1 + base_multi)) - 1
     return damage
 
   def neighbors(self,state):
@@ -376,7 +379,7 @@ class Queslar():
 #if len(sys.argv) != 2:
 #    sys.exit("Usage: python queslar_tools.py budget")
 
-q = Queslar(10000000)
+q = Queslar(0, False)
 print("Current:")
 q.print()
 print("Solving...")
