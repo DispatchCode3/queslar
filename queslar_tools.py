@@ -198,14 +198,14 @@ class Queslar():
 
 
   def dmg_value(self, bc, bd, bm, hc, hd, hm):
-    chc = self.b_chc + self.h_chc + bc + hc
-    chd = self.b_chd + self.h_chd + bd + hd
-    multi = self.b_multi + self.h_multi + bm + hm
-    base_chc = self.b_chc + self.h_chc
-    base_chd = self.b_chd + self.h_chd
-    base_multi = self.b_multi + self.h_multi
+    chc = (self.b_chc/10) + self.h_chc + (bc/10) + hc
+    chd = (self.b_chd/10) + self.h_chd + (bd/10) + hd
+    multi = (self.b_multi/10) + self.h_multi + (bm/10) + hm
+    base_chc = (self.b_chc/10) + self.h_chc
+    base_chd = (self.b_chd/10) + self.h_chd
+    base_multi = (self.b_multi/10) + self.h_multi
     
-    damage = ((1 + (chc * (0.2 + chd))) * (1 + multi)) / ((1 + (base_chc * (0.2 + base_chd))) * (1 + base_multi)) - 1
+    damage = ((100 + (chc * (20 + chd))) * (100 + multi)) / ((100 + (base_chc * (20 + base_chd))) * (100 + base_multi)) - 100
     return damage
 
   def neighbors(self,state):
